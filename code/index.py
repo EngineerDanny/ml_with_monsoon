@@ -34,7 +34,6 @@ data_dict = {
 
 test_acc_df_list = []
 for data_set, (input_mat, output_vec) in data_dict.items():
-    # print(data_set)
     kf = KFold(n_splits=3, shuffle=True, random_state=1)
     for fold_id, indices in enumerate(kf.split(input_mat)):
         print("fold_id = " + str(fold_id))
