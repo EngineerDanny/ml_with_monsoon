@@ -1,0 +1,7 @@
+dataset_name,algorithm
+zip,KNeighborsClassifier
+zip,LinearModel
+zip,Featureless
+spam,KNeighborsClassifier
+spam,LinearModel
+spam,Featureless
