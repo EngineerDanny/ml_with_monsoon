@@ -3,31 +3,30 @@ from sklearn.model_selection import KFold  # train/test splits
 from sklearn.model_selection import GridSearchCV  # selecting
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.dummy import DummyClassifier
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegressionCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
 import matplotlib.pyplot as plt
 import plotnine as p9
 import time
+import statistics
 
+
+data_path = "/projects/genomic-ml/da2343/ml_project_3/data"
 
 def run_main(n_rows=100):
     # Record the start time
     start_time = time.time()
 
-    data_path = "/projects/genomic-ml/da2343/ml_project_3/data"
 
     # Read the zip file into a pandas dataframe
     zip_df = pd.read_csv(
         f"{data_path}/zip.test.gz",
         header=None,
         sep=" ")
-
     is01 = zip_df[0].isin([0, 1])
     zip01_df = zip_df.loc[is01, :]
-    
     zip01_shuffled_df = zip01_df.sample(frac=1, random_state=1).reset_index(drop=True)
-    
     
     # Read the spam.csv data into a pandas dataframe
     spam_df = pd.read_csv(
@@ -36,10 +35,6 @@ def run_main(n_rows=100):
         header=None)
     spam_df_shuffled = spam_df.sample(frac=1, random_state=1).reset_index(drop=True)
     
-
-    
-
-
     data_dict = {
         "zip": (zip01_shuffled_df.loc[:, 1:].to_numpy(), zip01_shuffled_df[0]),
         "spam": (spam_df_shuffled.iloc[:, :-1].to_numpy(), spam_df_shuffled.iloc[:, -1])
@@ -68,7 +63,7 @@ def run_main(n_rows=100):
             clf.fit(**set_data_dict["train"])
 
             pipe = make_pipeline(
-                StandardScaler(), LogisticRegression(max_iter=1000))
+                StandardScaler(), LogisticRegressionCV(cv=5, max_iter=1_000) )
             pipe.fit(**set_data_dict["train"])
             
             featureless = DummyClassifier(strategy="most_frequent")
@@ -110,11 +105,8 @@ def run_main(n_rows=100):
     # print(f"Elapsed time: {elapsed_time} seconds")
     return elapsed_time
 
-import statistics
 
 n_row_list = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
-# n_row_list = [100, 200]
-
 n_row_time_list = []
 for i in n_row_list:
     time_list = []
@@ -124,16 +116,14 @@ for i in n_row_list:
         
     mean_time = statistics.mean(time_list)
     # print(f"Mean time: {mean_time} seconds")
-
     std_time = statistics.stdev(time_list)
     # print(f"Standard deviation of time: {std_time} seconds")
-    
-    
     n_row_time_list.append({
         "n_rows": i,
         "mean_time": mean_time,
-        "std_time": std_time
-        })
+        "std_time": std_time,
+        "type": "non_parallel"
+    })
 
 n_row_time_df = pd.DataFrame(n_row_time_list)
 print(n_row_time_df)
