@@ -1,3 +1,5 @@
+import sys
+import os
 import pandas as pd
 import numpy as np
 import torch
@@ -180,59 +182,40 @@ data_dict = {
 }
 
 
-def hyperparameter_training_and_diagnostic_plot():
-    for data_set, (input_mat, output_vec) in data_dict.items():
-        # param_dicts = [{'hidden_layers': [L]} for L in range(1, 5)]
-        
-        param_dicts = [
-            {
-                'hidden_layers': [L],
-                'step_size': [U],
-            }
-            for L in range(1, 3)
-            for U in [0.1, 0.2]
-        ]
-        print(param_dicts)
-            
-        rmlp = RegularizedMLP(
-            max_epochs=100,
-            batch_size=100,
-            step_size=0.1,
-            hidden_layers=3,
-            units_per_hidden_layer=100,
-        )
-        learner_instance = MyCV(estimator=rmlp, param_grid=param_dicts, cv=2)
-        learner_instance.fit(input_mat, output_vec)
-        loss_df = learner_instance.loss_mean_df
-        
-        # print(loss_df)
-        
-        loss_df.index = range(len(loss_df))
-        
-        set_colors = {"subtrain": "red", "validation": "blue"}
-        validation_df = loss_df.query("set_name=='validation'")
-        min_i = validation_df.loss.argmin()
-        min_row = pd.DataFrame(dict(validation_df.iloc[min_i, :]), index=[0])
-        gg = p9.ggplot() +\
-            p9.facet_grid(". ~ hidden_layers+step_size") +\
-            p9.scale_color_manual(values=set_colors) +\
-            p9.scale_fill_manual(values=set_colors) +\
-            p9.geom_line(
-                p9.aes(
-                    x="epoch",
-                    y="loss",
-                    color="set_name"
-                ),
-                data=loss_df) +\
-            p9.geom_point(
-                p9.aes(
-                    x="epoch",
-                    y="loss",
-                    fill="set_name"
-                ),
-                color="black",
-                data=min_row)
-        gg.save(f"{data_set}_01.png", width=10, height=5)
+params_df = pd.read_csv("params.csv")
 
+if len(sys.argv) == 2:
+    prog_name, task_str = sys.argv
+    param_row = int(task_str)
+else:
+    print("len(sys.argv)=%d so trying first param" % len(sys.argv))
+    param_row = 0
 
-hyperparameter_training_and_diagnostic_plot()
+param_dict = dict(params_df.iloc[param_row, :])
+hidden_layers = int(param_dict["hidden_layers"])
+step_size = float(param_dict["step_size"])
+
+param_list = [
+    {
+        'hidden_layers': [hidden_layers],
+        'step_size': [step_size],
+    }
+]
+
+for data_set, (input_mat, output_vec) in data_dict.items():
+    rmlp = RegularizedMLP(
+        max_epochs=100,
+        batch_size=100,
+        step_size=0.1,
+        hidden_layers=3,
+        units_per_hidden_layer=100,
+    )
+    learner_instance = MyCV(estimator=rmlp, param_grid=param_list, cv=2)
+    learner_instance.fit(input_mat, output_vec)
+    loss_df = learner_instance.loss_mean_df
+    loss_df.index = range(len(loss_df))
+    out_file = f"results/{param_row}.csv"
+    loss_df.to_csv(out_file, encoding='utf-8', index=False)
+print("done")
+        
+

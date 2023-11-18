@@ -8,24 +8,15 @@ import sys
 import pandas as pd
 
 
-params_df_list = []
-algo_list = ["KNeighborsClassifier", 
-            "LinearModel", 
-            "Featureless"]
-dataset_list = ["zip","spam"]
+params_dict = {
+   'hidden_layers': [1, 2],
+   'step_size': [0.01, 0.1, 0.2],
+}
 
-for dataset_name in dataset_list:
-    params_dict = {
-        'dataset_name': [dataset_name],
-        'algorithm': algo_list,
-    }
-
-    params_df = pd.MultiIndex.from_product(
-        params_dict.values(),
-        names=params_dict.keys()
-    ).to_frame().reset_index(drop=True)
-    params_df_list.append(params_df)
-params_concat_df = pd.concat(params_df_list, ignore_index=True)
+params_concat_df = pd.MultiIndex.from_product(
+    params_dict.values(),
+    names=params_dict.keys()
+).to_frame().reset_index(drop=True)
 n_tasks, ncol = params_concat_df.shape
 
 
