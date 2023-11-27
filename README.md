@@ -49,7 +49,7 @@ sbatch jobscript.sh
   width="700px"
   height="500px">
 
-## [Hyper-parameter Tuning](https://github.com/EngineerDanny/ml_with_monsoon/tree/main/code/optimization)
+## [Hyper-Parameter Tuning](https://github.com/EngineerDanny/ml_with_monsoon/tree/main/code/optimization)
 <img src="https://github.com/EngineerDanny/ml_with_monsoon/blob/main/code/optimization/loss_df_01.png" 
   alt="loss_df_01" 
   title="loss_df_01">
