@@ -6,7 +6,7 @@ using monsoon.
 - Access through the monsoon [dashboard](https://ondemand.hpc.nau.edu/pun/sys/dashboard/)
 - Access through the secure shell (ssh). On your terminal, run below and type your password:
 ```bash
-ssh -Y <username>@monsoon.hpc,nau.edu
+ssh -Y <username>@monsoon.hpc.nau.edu
 ```
 ## Interactive/Debug Work
 - Request a compute node with 4GB of RAM and 1 cpu for 24 hours
